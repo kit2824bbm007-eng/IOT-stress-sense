@@ -12,10 +12,14 @@
 
 ## 🔗 Live Application & Demo Links
 
+> 🌐 **Public Live Demo**: [https://fda-international-page-closely.trycloudflare.com](https://fda-international-page-closely.trycloudflare.com)  
+> *(Live full-stack React application with real-time frameless anatomical visual, ECG/PPG waveforms, and interactive clinical controls)*
+
 | Resource | Access URL | Description |
 |---|---|---|
+| **Live Public Demo** | [https://fda-international-page-closely.trycloudflare.com](https://fda-international-page-closely.trycloudflare.com) | Real-time cinematic landing page & clinical workstation (Live Online) |
 | **Repository** | [github.com/kit2824bbm007-eng/IOT-stress-sense](https://github.com/kit2824bbm007-eng/IOT-stress-sense) | Complete project source code & documentation |
-| **Opening / Landing Page** | [http://localhost:5173/](http://localhost:5173/) | Real-time cinematic landing page with beating heart & flowing ECG |
+| **Local Landing Page** | [http://localhost:5173/](http://localhost:5173/) | Real-time cinematic landing page with beating heart & flowing ECG |
 | **Clinical Workstation** | [http://localhost:5173/ecg-monitor](http://localhost:5173/ecg-monitor) | 60 FPS live dual-oscilloscope (Lead I ECG & optical PPG) |
 | **Telemetry Dashboard** | [http://localhost:5173/dashboard](http://localhost:5173/dashboard) | Autonomic stress & relaxation gauges, telemetry cards, and sessions |
 | **Guided Respiration Pacer** | [http://localhost:5173/breathing](http://localhost:5173/breathing) | 4-7-8 & Box breathing mode with before/after metric tracking |
