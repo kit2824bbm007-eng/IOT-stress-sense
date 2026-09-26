@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #f4f7fa;
+    --card-surface: #ffffff;
+    --border-subtle: #e2e8f0;
+  }
+
+  .dark {
+    --bg-primary: #07141f;
+    --card-surface: #0b1f33;
+    --border-subtle: #1e293b;
+  }
+
+  body {
+    background-color: #f4f7fa;
+    color: #0b1f33;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Authentic ECG Millimeter Grid */
+.ecg-grid {
+  background-color: #07141f;
+  background-image: 
+    linear-gradient(to right, rgba(32, 224, 160, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(32, 224, 160, 0.05) 1px, transparent 1px),
+    linear-gradient(to right, rgba(32, 224, 160, 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(32, 224, 160, 0.14) 1px, transparent 1px);
+  background-size: 8px 8px, 8px 8px, 40px 40px, 40px 40px;
+}
+
+.ppg-grid {
+  background-color: #07141f;
+  background-image: 
+    linear-gradient(to right, rgba(37, 199, 232, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(37, 199, 232, 0.05) 1px, transparent 1px),
+    linear-gradient(to right, rgba(37, 199, 232, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(37, 199, 232, 0.12) 1px, transparent 1px);
+  background-size: 10px 10px, 10px 10px, 50px 50px, 50px 50px;
+}
+
+/* Pulse Glow & Indicator Animations */
+@keyframes subtlePulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+.telemetry-pulse {
+  animation: subtlePulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Physiological Heartbeat Animation:
+   Rest (1.00) -> Contraction (1.025) -> Early Relaxation (0.99) -> Rebound (1.01) -> Rest (1.00)
+   100% frameless - scale only
+*/
+@keyframes physiologicalHeartbeat {
+  0% {
+    transform: translate(-50%, -50%) scale(1.00);
+  }
+  15% {
+    /* Systole / Contraction */
+    transform: translate(-50%, -50%) scale(1.025);
+  }
+  28% {
+    /* Early relaxation / ventricular repolarization */
+    transform: translate(-50%, -50%) scale(0.99);
+  }
+  42% {
+    /* Elastic rebound / second heart sound */
+    transform: translate(-50%, -50%) scale(1.01);
+  }
+  60%, 100% {
+    /* Diastole rest */
+    transform: translate(-50%, -50%) scale(1.00);
+  }
+}
+
+.animate-heartbeat {
+  animation: physiologicalHeartbeat 0.7692s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+  transform-origin: center center;
+}
+
+
+
+/* Page load sequence keyframes */
+@keyframes fadeInSeq {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.seq-bg {
+  animation: fadeInSeq 0.5s ease-out 0s forwards;
+}
+
+.seq-nav {
+  animation: fadeInSeq 0.5s ease-out 0.5s both;
+}
+
+.seq-hero-heading {
+  animation: fadeInSeq 0.6s ease-out 0.7s both;
+}
+
+.seq-heart {
+  animation: fadeInSeq 0.5s ease-out 1.0s both;
+}
+
+.seq-ecg {
+  animation: fadeInSeq 0.5s ease-out 1.5s both;
+}
+
+.seq-ppg {
+  animation: fadeInSeq 0.5s ease-out 1.8s both;
+}
+
+.seq-metrics {
+  animation: fadeInSeq 0.5s ease-out 2.0s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-heartbeat,
+  .seq-bg,
+  .seq-nav,
+  .seq-hero-heading,
+  .seq-heart,
+  .seq-ecg,
+  .seq-ppg,
+  .seq-metrics {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Clean Print Optimization */
+@media print {
+  aside, header, nav, .no-print {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
