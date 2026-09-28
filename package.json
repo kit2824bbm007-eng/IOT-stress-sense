@@ -1,0 +1,9 @@
+{
+  "name": "iot-stress-sense",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build && cd .. && rm -rf dist && cp -r frontend/dist dist",
+    "start": "cd frontend && npm run preview"
+  }
+}
