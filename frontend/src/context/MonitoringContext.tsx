@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import { DeviceData, SensorReadingData, SessionData } from '../types';
 import apiService from '../services/api';
 import sensorWebSocket, { WebSocketStatus } from '../services/websocket';
+import webSerialService, { SerialTelemetryPacket } from '../services/webSerial';
 
 interface MonitoringContextType {
   currentReading: SensorReadingData | null;
@@ -12,11 +13,17 @@ interface MonitoringContextType {
   devices: DeviceData[];
   wsStatus: WebSocketStatus;
   isSimulatorRunning: boolean;
+  isBuzzerActive: boolean;
+  isUsbConnected: boolean;
+  connectUsbArduino: () => Promise<boolean>;
+  disconnectUsbArduino: () => Promise<void>;
   startSession: () => Promise<void>;
   stopSession: () => Promise<SessionData | null>;
   toggleSimulator: () => Promise<void>;
   refreshDevices: () => Promise<void>;
   isSessionActive: boolean;
+  completedSessionModal: SessionData | null;
+  closeCompletedModal: () => void;
 }
 
 const DEFAULT_READING: SensorReadingData = {
@@ -44,17 +51,79 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [devices, setDevices] = useState<DeviceData[]>([]);
   const [wsStatus, setWsStatus] = useState<WebSocketStatus>('DISCONNECTED');
   const [isSimulatorRunning, setIsSimulatorRunning] = useState<boolean>(true);
+  const [isUsbConnected, setIsUsbConnected] = useState<boolean>(false);
+  const [completedSessionModal, setCompletedSessionModal] = useState<SessionData | null>(null);
 
   const BUFFER_SIZE = 240; // Samples displayed in moving real-time charts
   const selectedDeviceRef = useRef(selectedDeviceId);
   selectedDeviceRef.current = selectedDeviceId;
+
+  // Web Audio Context for Browser Buzzer Alarm
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const lastBeepRef = useRef<number>(0);
+
+  // Play synthesized 880 Hz buzzer alert tone in browser
+  const playBuzzerTone = useCallback(() => {
+    try {
+      const now = Date.now();
+      if (now - lastBeepRef.current < 900) return; // Debounce beep rate
+      lastBeepRef.current = now;
+
+      if (!audioCtxRef.current) {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtxRef.current = new AudioContextClass();
+        }
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx) {
+        if (ctx.state === 'suspended') ctx.resume();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880, ctx.currentTime); // 880 Hz medical alarm tone
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.35);
+      }
+    } catch (e) {
+      // Audio autoplay policy handled silently
+    }
+  }, []);
+
+  // Request browser desktop notification permission on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  // Determine if buzzer is actively sounding (BPM < 60)
+  const isBuzzerActive = !!(
+    currentReading &&
+    currentReading.bpm > 0 &&
+    currentReading.bpm < 60
+  );
+
+  // Trigger audio alert when buzzer condition is met
+  useEffect(() => {
+    if (isBuzzerActive) {
+      playBuzzerTone();
+      const interval = setInterval(playBuzzerTone, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [isBuzzerActive, playBuzzerTone]);
 
   // Refresh devices list
   const refreshDevices = useCallback(async () => {
     try {
       const devList = await apiService.getDevices();
       setDevices(devList);
-      if (devList.length > 0 && !devList.some(d => d.deviceId === selectedDeviceRef.current)) {
+      if (devList.length > 0 && !devList.some((d) => d.deviceId === selectedDeviceRef.current)) {
+        // If current device is not in list, auto-select first available
         setSelectedDeviceId(devList[0].deviceId);
       }
     } catch (err) {
@@ -72,10 +141,22 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   }, []);
 
-  // Handle incoming live sensor packet from WebSocket
+  // Handle incoming live sensor packet from WebSocket or WebSerial
   const handleLiveReading = useCallback((reading: SensorReadingData) => {
-    // If packet matches currently monitored device or if no device is explicitly chosen
-    if (!selectedDeviceRef.current || reading.deviceId === selectedDeviceRef.current) {
+    // AUTO-SWITCH: If a physical Arduino hardware packet arrives, auto-switch away from Simulator
+    if (reading.deviceId && reading.deviceId !== 'SIMULATOR_001') {
+      if (selectedDeviceRef.current === 'SIMULATOR_001') {
+        setSelectedDeviceId(reading.deviceId);
+        selectedDeviceRef.current = reading.deviceId;
+      }
+    }
+
+    // Accept packet if it matches selected device or if simulator is idle
+    if (
+      !selectedDeviceRef.current ||
+      reading.deviceId === selectedDeviceRef.current ||
+      (selectedDeviceRef.current === 'SIMULATOR_001' && reading.deviceId.startsWith('ARDUINO'))
+    ) {
       setCurrentReading(reading);
 
       // Append incoming ECG samples to rolling buffer
@@ -87,6 +168,55 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       }
     }
   }, []);
+
+  // Handle WebSerial Direct USB Packets from Arduino
+  useEffect(() => {
+    const unsubSerial = webSerialService.subscribePacket((packet: SerialTelemetryPacket) => {
+      const reading: SensorReadingData = {
+        deviceId: packet.deviceId || 'ARDUINO_001',
+        deviceType: packet.deviceType || 'ARDUINO_ECG',
+        timestamp: new Date().toISOString(),
+        bpm: packet.bpm,
+        rrInterval: packet.rrInterval || (packet.bpm > 0 ? 60000 / packet.bpm : 800),
+        hrv: packet.hrv || 45,
+        stressIndex: packet.stressIndex || 40,
+        relaxationIndex: packet.relaxationIndex || 60,
+        wellnessState: packet.bpm < 60 ? 'BRADYCARDIA ALERT' : (packet.stressIndex && packet.stressIndex > 60 ? 'ELEVATED STRESS' : 'LOW STRESS'),
+        wellnessDescription: packet.bpm < 60 ? 'Heart Rate is below 60 BPM. Buzzer alarm activated!' : 'Live ECG acquisition via USB Serial.',
+        signalQuality: packet.signalQuality || 96,
+        ecgSamples: packet.ecgSamples || [],
+      };
+
+      handleLiveReading(reading);
+
+      // Asynchronously forward to backend API for database persistence
+      apiService.ingestSensorData({
+        deviceId: reading.deviceId,
+        deviceType: reading.deviceType,
+        bpm: reading.bpm,
+        rrInterval: reading.rrInterval,
+        hrv: reading.hrv,
+        stressIndex: reading.stressIndex,
+        relaxationIndex: reading.relaxationIndex,
+        signalQuality: reading.signalQuality,
+        ecgSamples: reading.ecgSamples,
+      }).catch(() => {
+        // Backend optional for local display
+      });
+    });
+
+    const unsubStatus = webSerialService.subscribeStatus((connected) => {
+      setIsUsbConnected(connected);
+      if (connected) {
+        setSelectedDeviceId('ARDUINO_001');
+      }
+    });
+
+    return () => {
+      unsubSerial();
+      unsubStatus();
+    };
+  }, [handleLiveReading]);
 
   // Connect WebSocket and set up listeners
   useEffect(() => {
@@ -100,7 +230,6 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     refreshDevices();
     refreshSimulatorStatus();
 
-    // Check device list periodically (every 10s)
     const deviceInterval = setInterval(refreshDevices, 10000);
 
     return () => {
@@ -109,6 +238,21 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       clearInterval(deviceInterval);
     };
   }, [handleLiveReading, refreshDevices, refreshSimulatorStatus]);
+
+  // Direct USB connection method
+  const connectUsbArduino = async (): Promise<boolean> => {
+    try {
+      const ok = await webSerialService.connect();
+      return ok;
+    } catch (err) {
+      console.error('Failed to connect USB Arduino:', err);
+      throw err;
+    }
+  };
+
+  const disconnectUsbArduino = async (): Promise<void> => {
+    await webSerialService.disconnect();
+  };
 
   // Start monitoring session
   const startSession = async () => {
@@ -121,17 +265,35 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   };
 
-  // Stop monitoring session
+  // Stop monitoring session & trigger Completion Notification Modal
   const stopSession = async (): Promise<SessionData | null> => {
     if (!activeSession) return null;
     try {
       const completed = await apiService.stopSession(activeSession.id);
       setActiveSession(null);
+
+      if (completed) {
+        // Show completion details modal
+        setCompletedSessionModal(completed);
+
+        // Send browser desktop notification
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('StressSense: Measurement Completed', {
+            body: `Session #${completed.id} finished.\nAvg Heart Rate: ${Math.round(completed.averageBpm)} BPM | Stress: ${Math.round(completed.averageStress)}% | Relaxation: ${Math.round(completed.averageRelaxation)}%`,
+            icon: '/favicon.svg',
+          });
+        }
+      }
+
       return completed;
     } catch (err) {
       console.error('Failed to stop session:', err);
       throw err;
     }
+  };
+
+  const closeCompletedModal = () => {
+    setCompletedSessionModal(null);
   };
 
   // Toggle simulator
@@ -160,11 +322,17 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         devices,
         wsStatus,
         isSimulatorRunning,
+        isBuzzerActive,
+        isUsbConnected,
+        connectUsbArduino,
+        disconnectUsbArduino,
         startSession,
         stopSession,
         toggleSimulator,
         refreshDevices,
         isSessionActive: !!activeSession && activeSession.status === 'ACTIVE',
+        completedSessionModal,
+        closeCompletedModal,
       }}
     >
       {children}
@@ -179,3 +347,5 @@ export const useMonitoring = (): MonitoringContextType => {
   }
   return context;
 };
+
+export default MonitoringContext;

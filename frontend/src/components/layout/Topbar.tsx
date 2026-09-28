@@ -5,14 +5,26 @@ import {
   Moon,
   Sun,
   User,
-  Activity
+  Activity,
+  Cpu,
+  Radio,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useMonitoring } from '../../context/MonitoringContext';
 
 export const Topbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const { wsStatus, selectedDeviceId, isSessionActive } = useMonitoring();
+  const {
+    wsStatus,
+    selectedDeviceId,
+    isSessionActive,
+    isUsbConnected,
+    connectUsbArduino,
+    disconnectUsbArduino,
+    isBuzzerActive
+  } = useMonitoring();
   const location = useLocation();
 
   const [currentDateTime, setCurrentDateTime] = useState<string>('');
@@ -58,18 +70,28 @@ export const Topbar: React.FC = () => {
       case '/settings':
         return 'Settings';
       case '/relaxation':
-      case '/breathing':
         return 'Guided Relaxation';
+      case '/about':
+        return 'About StressSense';
       default:
-        if (pathname.includes('/report')) {
-          return 'Session Report';
-        }
-        return 'StressSense';
+        return 'StressSense HUD';
     }
   };
 
-  const isWsConnected = wsStatus === 'CONNECTED';
   const pageTitle = getPageTitle(location.pathname);
+  const isWsConnected = wsStatus === 'CONNECTED';
+
+  const handleUsbToggle = async () => {
+    if (isUsbConnected) {
+      await disconnectUsbArduino();
+    } else {
+      try {
+        await connectUsbArduino();
+      } catch (e: any) {
+        alert(e.message || 'Could not connect to USB serial device.');
+      }
+    }
+  };
 
   return (
     <header className="h-16 border-b border-[#E2E8F0] bg-white sticky top-0 z-30 px-6 sm:px-8 flex items-center justify-between shadow-subtle">
@@ -84,30 +106,59 @@ export const Topbar: React.FC = () => {
             <span>Recording Session</span>
           </span>
         )}
+        {isBuzzerActive && (
+          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-red-100 border border-red-300 text-[11px] font-bold text-red-700 animate-pulse">
+            <Volume2 className="w-3.5 h-3.5 text-red-600" />
+            <span>BUZZER ON (&lt;60 BPM)</span>
+          </span>
+        )}
       </div>
 
-      {/* Top Header Right items matching reference image */}
-      <div className="flex items-center space-x-5">
+      {/* Top Header Right items */}
+      <div className="flex items-center space-x-4 sm:space-x-5">
+        {/* Connect Arduino USB Hardware Button */}
+        <button
+          onClick={handleUsbToggle}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition border ${
+            isUsbConnected
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100 shadow-sm'
+              : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 shadow-subtle'
+          }`}
+          title={isUsbConnected ? 'Click to Disconnect Arduino USB' : 'Click to connect Arduino via USB port'}
+        >
+          {isUsbConnected ? (
+            <>
+              <Radio className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+              <span>Arduino USB Live</span>
+            </>
+          ) : (
+            <>
+              <Cpu className="w-3.5 h-3.5 text-blue-600" />
+              <span>Connect Arduino (USB)</span>
+            </>
+          )}
+        </button>
+
         {/* Device Status Badge */}
         <div className="flex items-center space-x-2 text-xs font-mono font-medium text-slate-700 bg-[#F4F7FA] px-3 py-1.5 rounded-lg border border-[#E2E8F0]">
           <span
             className={`w-2 h-2 rounded-full ${
-              isWsConnected ? 'bg-[#20E0A0] shadow-[0_0_6px_#20E0A0]' : 'bg-[#FFB547]'
+              isWsConnected || isUsbConnected ? 'bg-[#20E0A0] shadow-[0_0_6px_#20E0A0]' : 'bg-[#FFB547]'
             }`}
           ></span>
           <span className="font-semibold text-[#0B1F33]">{selectedDeviceId || 'SIMULATOR_001'}</span>
           <span className="text-slate-400">&bull;</span>
-          <span className={isWsConnected ? 'text-emerald-600 font-semibold' : 'text-amber-600'}>
-            {isWsConnected ? 'Connected' : 'Connecting'}
+          <span className={isWsConnected || isUsbConnected ? 'text-emerald-600 font-semibold' : 'text-amber-600'}>
+            {isUsbConnected ? 'Hardware Live' : isWsConnected ? 'Connected' : 'Connecting'}
           </span>
         </div>
 
-        {/* Date & Time: 25 Sep 2026 10:24 AM */}
-        <div className="hidden md:flex items-center text-xs font-mono text-slate-500 font-medium tracking-tight">
+        {/* Date & Time */}
+        <div className="hidden lg:flex items-center text-xs font-mono text-slate-500 font-medium tracking-tight">
           {currentDateTime || '25 Sep 2026 10:24 AM'}
         </div>
 
-        {/* Theme Toggle (subtle) */}
+        {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
           className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
@@ -119,17 +170,6 @@ export const Topbar: React.FC = () => {
             <Moon className="w-4 h-4 text-slate-500" />
           )}
         </button>
-
-        {/* Notifications Icon with Badge */}
-        <div className="relative">
-          <button
-            className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
-            aria-label="Notifications"
-          >
-            <Bell className="w-4 h-4" />
-          </button>
-          <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#1D4ED8]"></span>
-        </div>
 
         {/* User Profile Avatar */}
         <div className="flex items-center space-x-2 pl-2 border-l border-slate-200">

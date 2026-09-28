@@ -1,4 +1,4 @@
-export type WellnessState = 'LOW STRESS' | 'MODERATE STRESS' | 'ELEVATED STRESS';
+export type WellnessState = 'LOW STRESS' | 'MODERATE STRESS' | 'ELEVATED STRESS' | 'BRADYCARDIA ALERT';
 
 export interface SensorReadingData {
   id?: number;
