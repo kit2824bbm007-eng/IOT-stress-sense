@@ -3,30 +3,15 @@
 > **Real-Time Stress & Relaxation Monitoring Using ECG and Pulse Signals**  
 > *A full-stack, hardware-independent biomedical telemetry prototype for academic demonstration and research.*
 
-[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/kit2824bbm007-eng/IOT-stress-sense)
-[![React](https://img.shields.io/badge/Frontend-React%2018%20%7C%20TypeScript%20%7C%20Vite-61DAFB?style=for-the-badge&logo=react)](https://github.com/kit2824bbm007-eng/IOT-stress-sense)
-[![Spring Boot](https://img.shields.io/badge/Backend-Spring%20Boot%203.3-6DB33F?style=for-the-badge&logo=springboot)](https://github.com/kit2824bbm007-eng/IOT-stress-sense)
-[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%2017-4169E1?style=for-the-badge&logo=postgresql)](https://github.com/kit2824bbm007-eng/IOT-stress-sense)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Render-brightgreen?style=for-the-badge)](https://iot-stress-sense-frontend.onrender.com/)
 
 ---
 
-## 🔗 Live Application & Demo Links
+## 🔗 Live Application
 
-> 🌐 **Public Live Demo**: [https://fda-international-page-closely.trycloudflare.com](https://fda-international-page-closely.trycloudflare.com)  
-> *(Live full-stack React application with real-time frameless anatomical visual, ECG/PPG waveforms, and interactive clinical controls)*
+> 🌐 **Live Demo**: [https://iot-stress-sense-frontend.onrender.com/](https://iot-stress-sense-frontend.onrender.com/)  
+> *(Real-time stress & relaxation monitoring dashboard with live biosignal waveforms and interactive controls)*
 
-| Resource | Access URL | Description |
-|---|---|---|
-| **Live Public Demo** | [https://fda-international-page-closely.trycloudflare.com](https://fda-international-page-closely.trycloudflare.com) | Real-time cinematic landing page & clinical workstation (Live Online) |
-| **Repository** | [github.com/kit2824bbm007-eng/IOT-stress-sense](https://github.com/kit2824bbm007-eng/IOT-stress-sense) | Complete project source code & documentation |
-| **Local Landing Page** | [http://localhost:5173/](http://localhost:5173/) | Real-time cinematic landing page with beating heart & flowing ECG |
-| **Clinical Workstation** | [http://localhost:5173/ecg-monitor](http://localhost:5173/ecg-monitor) | 60 FPS live dual-oscilloscope (Lead I ECG & optical PPG) |
-| **Telemetry Dashboard** | [http://localhost:5173/dashboard](http://localhost:5173/dashboard) | Autonomic stress & relaxation gauges, telemetry cards, and sessions |
-| **Guided Respiration Pacer** | [http://localhost:5173/breathing](http://localhost:5173/breathing) | 4-7-8 & Box breathing mode with before/after metric tracking |
-| **Session Reports** | [http://localhost:5173/sessions](http://localhost:5173/sessions) | Longitudinal recording history with printable PDF-ready clinical reports |
-| **IoT Device Manager** | [http://localhost:5173/devices](http://localhost:5173/devices) | Hardware registry, packet ingestion monitor, and cURL test harness |
-| **REST API Base** | [http://localhost:8080/api](http://localhost:8080/api) | Hardware-agnostic JSON telemetry ingestion and query API |
-| **WebSocket Stream** | `ws://localhost:8080/ws/sensor` | Sub-millisecond 250 SPS live biosignal broadcast bus |
 
 ---
 
