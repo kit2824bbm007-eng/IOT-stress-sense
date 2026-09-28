@@ -291,34 +291,37 @@ simulation.device-type=SIMULATOR
 
 ---
 
-## 12. Future Real Hardware Integration
+## 12. Physical Hardware Setup (Arduino + AD8232 + Buzzer)
 
-When physical hardware is selected (e.g. Arduino UNO R4, ESP32, STM32), **no backend or frontend code changes are required**.
+The repository includes a ready-to-flash Arduino firmware sketch located at:  
+📂 **[`arduino/StressSense_ECG_Buzzer/StressSense_ECG_Buzzer.ino`](arduino/StressSense_ECG_Buzzer/StressSense_ECG_Buzzer.ino)**
 
-### Recommended Hardware Components
-1. **ECG Sensor**: AD8232 Single-Lead Heart Rate Monitor with 3-electrode cable (RA, LA, RL).
-2. **Microcontroller**: Any IoT board with Wi-Fi (e.g., ESP32 NodeMCU, Arduino R4 WiFi).
+### Hardware Pin Connections
 
-### IoT Firmware Transmission Logic
-The microcontroller samples the sensors at 250 Hz, buffers 100–250 samples, and performs a standard HTTP POST request every 500ms to the backend:
+| Component Pin | Arduino Pin | Description |
+| :--- | :--- | :--- |
+| **AD8232 OUTPUT** | **Analog A0** | Analog ECG Lead II voltage signal |
+| **AD8232 3.3V** | **3.3V** | Sensor Power (*⚠️ Do NOT use 5V*) |
+| **AD8232 GND** | **GND** | Sensor Ground |
+| **AD8232 LO+** | **Digital Pin 10** | Leads-Off Detection Positive |
+| **AD8232 LO-** | **Digital Pin 11** | Leads-Off Detection Negative |
+| **Buzzer Positive (+)** | **Digital Pin D8** | Alarm Pin (*Triggered whenever Heart Rate < 60 BPM*) |
+| **Buzzer Negative (-)** | **GND** | Buzzer Ground |
 
-```http
-POST /api/sensor/data HTTP/1.1
-Host: <BACKEND_IP>:8080
-Content-Type: application/json
+### Automated Buzzer Alarm (< 60 BPM)
+- The Arduino continuously samples the AD8232 ECG signal at 250 Hz and detects R-peaks.
+- When Heart Rate drops **below 60 BPM (Bradycardia)**, the Arduino immediately triggers **Pin D8 HIGH (1000 Hz tone)** to blow the buzzer until heart rate recovers.
+- The web app simultaneously triggers a visual alert banner and browser audio tone.
 
-{
-  "deviceId": "DEVICE_001",
-  "deviceType": "ESP32",
-  "timestamp": "2026-09-25T10:15:30",
-  "bpm": 74.0,
-  "rrInterval": 810.0,
-  "hrv": 48.5,
-  "ecgSamples": [512, 518, 524, 610, 750, 480, 510, ...]
-}
-```
-
-The device will immediately register in the Devices page, and all live oscilloscopes, radial gauges, and session reports will display data from the physical controller.
+### Connecting Hardware to the Web App
+1. **Option 1 (Web Serial in Chrome/Edge/Opera)**:
+   - Click the **"Connect Arduino (USB)"** button in the Topbar or Devices page.
+   - Select your Arduino port at 115200 baud. Real-time telemetry streams directly into the dashboard.
+2. **Option 2 (Python Serial Bridge for Safari / All Browsers)**:
+   ```bash
+   python3 serial_bridge.py
+   ```
+   - Automatically detects the USB serial port and forwards live JSON telemetry to the backend.
 
 ---
 
