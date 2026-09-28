@@ -9,7 +9,7 @@
 
 ## 🔗 Live Application
 
-> 🌐 **Live Demo**: [https://iot-stress-sense-frontend.onrender.com/](https://iot-stress-sense-frontend.onrender.com/)  
+> 🌐 **Live Demo**: https://stresssense-ecg.onrender.com  
 > *(Real-time stress & relaxation monitoring dashboard with live biosignal waveforms and interactive controls)*
 
 
