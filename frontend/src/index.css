@@ -36,14 +36,14 @@
   background-size: 8px 8px, 8px 8px, 40px 40px, 40px 40px;
 }
 
-/* Pulse Glow & Indicator Animations */
-@keyframes subtlePulse {
+/* Glow & Indicator Animations */
+@keyframes subtleGlow {
   0%, 100% { opacity: 0.6; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.08); }
 }
 
-.telemetry-pulse {
-  animation: subtlePulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.telemetry-glow {
+  animation: subtleGlow 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Physiological Heartbeat Animation:

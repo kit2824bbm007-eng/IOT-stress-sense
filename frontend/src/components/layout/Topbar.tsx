@@ -80,7 +80,7 @@ export const Topbar: React.FC = () => {
         </h1>
         {isSessionActive && (
           <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-[11px] font-semibold text-rose-600">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
             <span>Recording Session</span>
           </span>
         )}

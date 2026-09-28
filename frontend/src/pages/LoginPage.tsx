@@ -68,14 +68,14 @@ export const LoginPage: React.FC = () => {
             </h1>
 
             <p className="text-slate-400 text-xs sm:text-sm mt-3 leading-relaxed max-w-sm">
-              Real-time autonomic nervous system and cardiac rhythm acquisition with synchronous Lead I electrocardiogram and optical photoplethysmogram telemetry.
+              Real-time autonomic nervous system and cardiac rhythm acquisition with high-precision AD8232 Lead II electrocardiogram telemetry.
             </p>
           </div>
 
           {/* Center Heart / Cardiac Illustration Box */}
           <div className="relative z-10 my-8 p-5 rounded-2xl bg-[#0B1F33]/80 border border-[#152E4A] backdrop-blur-md">
             <div className="flex items-center space-x-3 text-xs text-[#20E0A0] font-mono mb-2">
-              <span className="w-2 h-2 rounded-full bg-[#20E0A0] animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-[#20E0A0] opacity-80"></span>
               <span>CONTINUOUS BIOMETRIC TELEMETRY &bull; 250 SPS</span>
             </div>
 

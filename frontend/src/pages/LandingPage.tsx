@@ -489,7 +489,7 @@ export const LandingPage: React.FC = () => {
               <span className="w-1 h-2 rounded-full bg-[#00E5FF] animate-bounce"></span>
             </div>
             <span>Scroll to Explore</span>
-            <ChevronDown className="w-3.5 h-3.5 animate-pulse text-slate-400 group-hover:text-[#00E5FF]" />
+            <ChevronDown className="w-3.5 h-3.5 animate-bounce text-slate-400 group-hover:text-[#00E5FF]" />
           </a>
         </div>
       </section>

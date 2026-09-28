@@ -216,7 +216,7 @@ export const ECGChart: React.FC<ECGChartProps> = ({
         ctx.stroke();
         ctx.restore();
 
-        // Bright sweeping pulse bead at current end
+        // Bright sweeping cursor indicator at current end
         const lastX = w - 2;
         const lastVal = points[points.length - 1];
         const lastY = centerY - lastVal * ampFactor;
