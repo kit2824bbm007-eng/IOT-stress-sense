@@ -31,9 +31,7 @@ export const AboutPage: React.FC = () => {
         </div>
 
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
-          An end-to-end, hardware-independent biomedical telemetry platform designed to acquire synchronous
-          electrocardiogram (ECG) and photoplethysmogram (PPG) waveforms to estimate autonomic nervous system
-          stress and relaxation states continuously.
+          An end-to-end, hardware-independent biomedical telemetry platform designed to acquire electrocardiogram (ECG) Lead II waveforms to estimate autonomic nervous system stress and relaxation states continuously.
         </p>
       </div>
 
@@ -52,8 +50,8 @@ export const AboutPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center font-mono">
             <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
               <span className="text-[10px] text-teal-400 font-bold uppercase block">1. Sensors</span>
-              <p className="text-xs text-white font-semibold">AD8232 + MAX30102</p>
-              <p className="text-[10px] text-slate-400">Lead II ECG &amp; Optical PPG</p>
+              <p className="text-xs text-white font-semibold">AD8232 ECG Sensor</p>
+              <p className="text-[10px] text-slate-400">Lead II Biomedical ECG</p>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
@@ -94,12 +92,11 @@ export const AboutPage: React.FC = () => {
         <div className="bg-white dark:bg-slate-925 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-3">
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center space-x-2">
             <Heart className="w-4 h-4 text-rose-500" />
-            <span>Photoplethysmography (PPG)</span>
+            <span>Autonomic Tone &amp; Stress Analysis</span>
           </span>
           <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            Measures peripheral blood volume changes using optical infrared reflection. The waveform displays a prominent
-            systolic peak followed by a dicrotic notch created by aortic valve closure. Synchronization with the ECG
-            isolates pulse transit time and validates signal fidelity.
+            Synthesizes heart rate and heart rate variability from consecutive R-peak intervals. Lower RMSSD values signal
+            sympathetic arousal (elevated stress), while elevated RMSSD values indicate robust parasympathetic tone and physiological relaxation.
           </p>
         </div>
       </div>
@@ -107,8 +104,7 @@ export const AboutPage: React.FC = () => {
       {/* Disclaimer */}
       <div className="p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30 text-center">
         <p className="text-xs text-slate-400 leading-relaxed italic">
-          &ldquo;This system is an educational wellness-monitoring prototype. Stress and relaxation values are estimated
-          from physiological signal features and are not intended for medical diagnosis.&rdquo;
+          &ldquo;Stress and relaxation values are estimated from physiological signal features and are not intended for medical diagnosis.&rdquo;
         </p>
       </div>
     </div>

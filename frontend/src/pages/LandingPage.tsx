@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import {
   Heart,
   Activity,
-  HeartPulse,
   Brain,
   BarChart3,
   Radio,
@@ -25,7 +24,6 @@ export const LandingPage: React.FC = () => {
 
   // Shared Master Physiological Clock & Heartbeat State
   const [bpm, setBpm] = useState<number>(78);
-  const [pulseRate, setPulseRate] = useState<number>(82);
   const [hrvValue, setHrvValue] = useState<number>(45);
   const [rrInterval, setRrInterval] = useState<number>(770);
   const [isBeating, setIsBeating] = useState<boolean>(false);
@@ -82,30 +80,6 @@ export const LandingPage: React.FC = () => {
     return 0; // Isoelectric baseline
   };
 
-  // 2. Optical PPG Point Generator (peaks ~140ms after ECG R-peak)
-  const getPpgPoint = (phase: number): number => {
-    // Shift phase by ~0.16 to account for pulse transit time from ventricle to peripheral capillary bed
-    const shifted = (phase + 1.0 - 0.16) % 1.0;
-
-    // Systolic rapid upstroke
-    if (shifted >= 0.06 && shifted < 0.24) {
-      return Math.sin(((shifted - 0.06) / 0.18) * (Math.PI / 2));
-    }
-    // Systolic decline into dicrotic notch
-    if (shifted >= 0.24 && shifted < 0.40) {
-      return 1.0 - 0.52 * Math.sin(((shifted - 0.24) / 0.16) * (Math.PI / 2));
-    }
-    // Dicrotic notch reflection wave (aortic valve closure reflection)
-    if (shifted >= 0.40 && shifted < 0.54) {
-      return 0.48 + 0.18 * Math.sin(((shifted - 0.40) / 0.14) * Math.PI);
-    }
-    // Diastolic runoff decay to baseline
-    if (shifted >= 0.54 && shifted < 0.92) {
-      return 0.48 * Math.exp(-((shifted - 0.54) / 0.26) * 2.4);
-    }
-    return 0.05;
-  };
-
   // Master Synchronized Animation Loop (60 FPS)
   useEffect(() => {
     let running = true;
@@ -141,7 +115,6 @@ export const LandingPage: React.FC = () => {
         if (currentBeatIndex % 5 === 0) {
           const delta = (currentBeatIndex % 10 === 0 ? 1 : -1);
           setBpm(baseBpm + delta);
-          setPulseRate(baseBpm + 4 + delta);
           setHrvValue(45 + (delta > 0 ? 1 : -1));
           setRrInterval(Math.round(60000 / (baseBpm + delta)));
         }
@@ -367,7 +340,7 @@ export const LandingPage: React.FC = () => {
 
             {/* Description */}
             <p className="text-sm text-slate-300 leading-relaxed max-w-lg">
-              Real-time monitoring of ECG and pulse signals with AI-driven stress and relaxation analysis. An IoT-based solution for intelligent wellness monitoring.
+              Real-time monitoring of ECG signals with AI-driven stress and relaxation analysis. An IoT-based solution for intelligent wellness monitoring.
             </p>
 
             {/* Two Action Buttons */}
@@ -404,14 +377,14 @@ export const LandingPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Box 2: Pulse Analysis */}
+              {/* Box 2: HRV & RMSSD Analysis */}
               <div className="p-3.5 rounded-2xl bg-[#071322]/80 border border-[#00E5FF]/30 backdrop-blur-md text-center hover:border-[#00E5FF]/60 transition-all group shadow-lg">
                 <div className="w-10 h-10 rounded-xl bg-[#00E5FF]/10 border border-[#00E5FF]/20 flex items-center justify-center text-[#00E5FF] mx-auto mb-2.5 shadow-[0_0_12px_rgba(0,229,255,0.2)] group-hover:scale-105 transition-transform">
                   <Heart className="w-5 h-5" />
                 </div>
                 <div className="text-[11px] font-semibold text-slate-200 leading-tight">
-                  <div>Pulse</div>
-                  <div>Analysis</div>
+                  <div>HRV &amp;</div>
+                  <div>RMSSD</div>
                 </div>
               </div>
 
@@ -547,7 +520,7 @@ export const LandingPage: React.FC = () => {
             <div>
               <h3 className="text-sm font-bold text-white">Real-time Data</h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                Continuous ECG and pulse signal monitoring
+                Continuous ECG Lead II signal monitoring
               </p>
             </div>
           </div>
@@ -601,9 +574,9 @@ export const LandingPage: React.FC = () => {
             <div className="w-8 h-8 rounded-lg bg-[#20E0A0]/10 text-[#20E0A0] flex items-center justify-center font-mono font-bold text-sm">
               01
             </div>
-            <h3 className="text-base font-bold text-white">Dual-Sensor Ingestion</h3>
+            <h3 className="text-base font-bold text-white">ECG Signal Ingestion</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Accepts Lead I AD8232 electrocardiogram analog voltages and MAX30102 photoplethysmogram optical absorption signals at 250 samples per second.
+              Acquires Lead II AD8232 electrocardiogram analog voltages at 250 samples per second with high-resolution analog front-end filtering.
             </p>
           </div>
 

@@ -54,8 +54,7 @@ public class SensorDataService {
                 request.getBpm(),
                 request.getHrv(),
                 request.getRrInterval(),
-                request.getEcgSamples(),
-                request.getPulseSamples()
+                request.getEcgSamples()
         );
 
         double computedBpm = request.getBpm() != null ? request.getBpm() : 75.0;
@@ -81,7 +80,6 @@ public class SensorDataService {
         reading.setRelaxationIndex(relaxationIndex);
         reading.setSignalQuality(signalQuality);
         reading.setEcgSamples(request.getEcgSamples());
-        reading.setPulseSamples(request.getPulseSamples());
 
         SensorReading saved = readingRepository.save(reading);
 
@@ -146,7 +144,6 @@ public class SensorDataService {
         dto.setRelaxationIndex(reading.getRelaxationIndex());
         dto.setSignalQuality(reading.getSignalQuality());
         dto.setEcgSamples(reading.getEcgSamples());
-        dto.setPulseSamples(reading.getPulseSamples());
 
         // Wellness state interpretation
         if (reading.getStressIndex() != null) {

@@ -36,16 +36,6 @@
   background-size: 8px 8px, 8px 8px, 40px 40px, 40px 40px;
 }
 
-.ppg-grid {
-  background-color: #07141f;
-  background-image: 
-    linear-gradient(to right, rgba(37, 199, 232, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(37, 199, 232, 0.05) 1px, transparent 1px),
-    linear-gradient(to right, rgba(37, 199, 232, 0.12) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(37, 199, 232, 0.12) 1px, transparent 1px);
-  background-size: 10px 10px, 10px 10px, 50px 50px, 50px 50px;
-}
-
 /* Pulse Glow & Indicator Animations */
 @keyframes subtlePulse {
   0%, 100% { opacity: 0.6; transform: scale(1); }
@@ -115,12 +105,8 @@
   animation: fadeInSeq 0.5s ease-out 1.5s both;
 }
 
-.seq-ppg {
-  animation: fadeInSeq 0.5s ease-out 1.8s both;
-}
-
 .seq-metrics {
-  animation: fadeInSeq 0.5s ease-out 2.0s both;
+  animation: fadeInSeq 0.5s ease-out 1.8s both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -130,7 +116,6 @@
   .seq-hero-heading,
   .seq-heart,
   .seq-ecg,
-  .seq-ppg,
   .seq-metrics {
     animation: none !important;
     opacity: 1 !important;

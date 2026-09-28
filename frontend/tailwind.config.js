@@ -28,10 +28,6 @@ export default {
           grid: 'rgba(32, 224, 160, 0.08)',
           gridMajor: 'rgba(32, 224, 160, 0.16)',
         },
-        ppg: {
-          cyan: '#25C7E8',
-          dark: '#07141F',
-        },
         // Legacy fallbacks
         slate: {
           850: '#131b2e',

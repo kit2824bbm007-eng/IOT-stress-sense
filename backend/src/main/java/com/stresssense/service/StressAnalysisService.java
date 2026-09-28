@@ -59,16 +59,15 @@ public class StressAnalysisService {
     }
 
     /**
-     * Compute stress and relaxation indices from physiological features.
+     * Compute stress and relaxation indices from ECG physiological features.
      *
-     * @param bpm Heart rate in beats per minute
-     * @param hrv Heart rate variability (RMSSD/SDNN in milliseconds)
-     * @param rrInterval Mean RR interval in milliseconds
+     * @param bpm Heart rate in beats per minute derived from ECG R-peaks
+     * @param hrv Heart rate variability (RMSSD in milliseconds) from ECG RR intervals
+     * @param rrInterval Mean RR interval in milliseconds from ECG
      * @param ecgSamples Raw ECG waveform samples
-     * @param pulseSamples Raw Pulse/PPG waveform samples
      * @return StressAnalysisResult with indices, state, and description
      */
-    public StressAnalysisResult analyze(Double bpm, Double hrv, Double rrInterval, List<Double> ecgSamples, List<Double> pulseSamples) {
+    public StressAnalysisResult analyze(Double bpm, Double hrv, Double rrInterval, List<Double> ecgSamples) {
         double safeBpm = (bpm != null && bpm > 30.0 && bpm < 220.0) ? bpm : 75.0;
         double safeHrv = (hrv != null && hrv >= 0.0) ? hrv : 45.0;
         double safeRr = (rrInterval != null && rrInterval > 200.0) ? rrInterval : (60000.0 / safeBpm);
@@ -118,8 +117,8 @@ public class StressAnalysisService {
         }
         double estimatedRelaxation = Math.round(Math.min(100.0, Math.max(0.0, rawRelaxation)) * 10.0) / 10.0;
 
-        // 6. Signal Quality Calculation
-        double signalQuality = calculateSignalQuality(ecgSamples, pulseSamples);
+        // 6. Signal Quality Calculation based on ECG Lead II waveform
+        double signalQuality = calculateSignalQuality(ecgSamples);
 
         // 7. Wellness State Classification
         String wellnessState;
@@ -140,42 +139,25 @@ public class StressAnalysisService {
     }
 
     /**
-     * Estimates signal quality (0 - 100%) from waveform samples amplitude and continuity.
+     * Estimates ECG signal quality (0 - 100%) from waveform samples amplitude and continuity.
      */
-    public double calculateSignalQuality(List<Double> ecgSamples, List<Double> pulseSamples) {
-        if ((ecgSamples == null || ecgSamples.isEmpty()) && (pulseSamples == null || pulseSamples.isEmpty())) {
+    public double calculateSignalQuality(List<Double> ecgSamples) {
+        if (ecgSamples == null || ecgSamples.isEmpty()) {
             return 85.0; // Baseline default
         }
 
         double score = 96.0;
-        if (ecgSamples != null && !ecgSamples.isEmpty()) {
-            double min = Double.MAX_VALUE;
-            double max = -Double.MAX_VALUE;
-            for (Double v : ecgSamples) {
-                if (v != null) {
-                    if (v < min) min = v;
-                    if (v > max) max = v;
-                }
-            }
-            double dynamicRange = max - min;
-            if (dynamicRange < 50.0 || dynamicRange > 2000.0) {
-                score -= 6.0;
+        double min = Double.MAX_VALUE;
+        double max = -Double.MAX_VALUE;
+        for (Double v : ecgSamples) {
+            if (v != null) {
+                if (v < min) min = v;
+                if (v > max) max = v;
             }
         }
-
-        if (pulseSamples != null && !pulseSamples.isEmpty()) {
-            double min = Double.MAX_VALUE;
-            double max = -Double.MAX_VALUE;
-            for (Double v : pulseSamples) {
-                if (v != null) {
-                    if (v < min) min = v;
-                    if (v > max) max = v;
-                }
-            }
-            double dynamicRange = max - min;
-            if (dynamicRange < 30.0) {
-                score -= 4.0;
-            }
+        double dynamicRange = max - min;
+        if (dynamicRange < 50.0 || dynamicRange > 2000.0) {
+            score -= 6.0;
         }
 
         return Math.round(Math.min(99.5, Math.max(50.0, score)) * 10.0) / 10.0;

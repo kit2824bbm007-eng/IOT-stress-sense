@@ -15,7 +15,6 @@ export interface SensorReadingData {
   wellnessDescription?: string;
   signalQuality: number;
   ecgSamples: number[];
-  pulseSamples: number[];
 }
 
 export interface DeviceData {

@@ -48,10 +48,6 @@ public class SensorReading {
     @Column(name = "ecg_samples", columnDefinition = "TEXT")
     private List<Double> ecgSamples = new ArrayList<>();
 
-    @Convert(converter = DoubleListConverter.class)
-    @Column(name = "pulse_samples", columnDefinition = "TEXT")
-    private List<Double> pulseSamples = new ArrayList<>();
-
     public SensorReading() {
     }
 
@@ -141,13 +137,5 @@ public class SensorReading {
 
     public void setEcgSamples(List<Double> ecgSamples) {
         this.ecgSamples = ecgSamples;
-    }
-
-    public List<Double> getPulseSamples() {
-        return pulseSamples;
-    }
-
-    public void setPulseSamples(List<Double> pulseSamples) {
-        this.pulseSamples = pulseSamples;
     }
 }

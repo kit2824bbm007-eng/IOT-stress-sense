@@ -211,7 +211,7 @@ public class SessionService {
         // Waveform quality & data continuity observation
         int samplesCount = readings.size();
         if (samplesCount > 0) {
-            list.add("Captured " + samplesCount + " synchronized physiological data points across ECG and Pulse/PPG channels with steady waveform fidelity.");
+            list.add("Captured " + samplesCount + " synchronized physiological data points from the ECG Lead II channel with steady waveform fidelity.");
         } else {
             list.add("Baseline session summary recorded without extensive continuous window readings.");
         }

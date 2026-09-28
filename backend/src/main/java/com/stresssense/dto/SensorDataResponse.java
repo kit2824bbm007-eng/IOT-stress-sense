@@ -20,7 +20,6 @@ public class SensorDataResponse {
     private String wellnessDescription;
     private Double signalQuality;
     private List<Double> ecgSamples = new ArrayList<>();
-    private List<Double> pulseSamples = new ArrayList<>();
 
     public SensorDataResponse() {
     }
@@ -135,13 +134,5 @@ public class SensorDataResponse {
 
     public void setEcgSamples(List<Double> ecgSamples) {
         this.ecgSamples = ecgSamples != null ? ecgSamples : new ArrayList<>();
-    }
-
-    public List<Double> getPulseSamples() {
-        return pulseSamples;
-    }
-
-    public void setPulseSamples(List<Double> pulseSamples) {
-        this.pulseSamples = pulseSamples != null ? pulseSamples : new ArrayList<>();
     }
 }

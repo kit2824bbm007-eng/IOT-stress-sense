@@ -28,7 +28,6 @@ export const SettingsPage: React.FC = () => {
   const [amplitude, setAmplitude] = useState<string>('10 mm/mV');
   const [lead, setLead] = useState<string>('Lead I');
   const [ecgPoints, setEcgPoints] = useState<number>(300);
-  const [ppgPoints, setPpgPoints] = useState<number>(300);
   const [autoReconnect, setAutoReconnect] = useState<boolean>(true);
   const [saveRawData, setSaveRawData] = useState<boolean>(true);
   const [enableNotifications, setEnableNotifications] = useState<boolean>(false);
@@ -244,11 +243,11 @@ export const SettingsPage: React.FC = () => {
               </span>
             </div>
 
-            {/* PPG Display Points */}
+            {/* ECG Sample Rate */}
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-700">PPG Display Points</span>
+              <span className="font-semibold text-slate-700">ECG Sample Rate</span>
               <span className="font-mono text-slate-800 font-bold bg-[#F8FAFC] px-2.5 py-1 rounded-md border border-[#E2E8F0]">
-                {ppgPoints}
+                250 Hz
               </span>
             </div>
 

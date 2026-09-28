@@ -15,13 +15,12 @@ import {
 import apiService from '../services/api';
 import { SessionReportData } from '../types';
 import { ECGChart } from '../components/charts/ECGChart';
-import { PulseChart } from '../components/charts/PulseChart';
 
 export const SessionReportPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [report, setReport] = useState<SessionReportData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'ecg' | 'pulse' | 'analysis'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'ecg' | 'analysis'>('overview');
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -138,16 +137,6 @@ export const SessionReportPage: React.FC = () => {
           ECG Analysis
         </button>
         <button
-          onClick={() => setActiveTab('pulse')}
-          className={`pb-2.5 transition border-b-2 ${
-            activeTab === 'pulse'
-              ? 'border-[#1D4ED8] text-[#1D4ED8]'
-              : 'border-transparent hover:text-slate-800'
-          }`}
-        >
-          Pulse Analysis
-        </button>
-        <button
           onClick={() => setActiveTab('analysis')}
           className={`pb-2.5 transition border-b-2 ${
             activeTab === 'analysis'
@@ -228,35 +217,27 @@ export const SessionReportPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column: ECG & PPG Trend Charts */}
+        {/* Right Column: ECG Trend */}
         <div className="lg:col-span-2 space-y-5">
           {/* ECG Signal Trend */}
           <div className="bg-white rounded-2xl p-5 border border-[#E2E8F0] shadow-card space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                ECG Signal Trend
-              </span>
-              <span className="text-[10px] font-mono text-slate-400">Lead I</span>
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-600 block">
+                  ECG Lead II Signal Trend
+                </span>
+                <span className="text-[11px] text-slate-400">Continuous 250 SPS biomedical acquisition trace</span>
+              </div>
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Lead II (AD8232)</span>
             </div>
-            <ECGChart height={180} title="ECG LEAD I TREND" showLiveBadge={false} />
-          </div>
-
-          {/* PPG / Pulse Signal Trend */}
-          <div className="bg-white rounded-2xl p-5 border border-[#E2E8F0] shadow-card space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                PPG / Pulse Signal Trend
-              </span>
-              <span className="text-[10px] font-mono text-slate-400">PPG</span>
-            </div>
-            <PulseChart height={160} title="PPG / PULSE SIGNAL TREND" showLiveBadge={false} />
+            <ECGChart height={220} title="ECG LEAD II TREND" lead="Lead II" showLiveBadge={false} />
           </div>
 
           {/* Report Medical Disclaimer Banner */}
           <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/50 flex items-start space-x-3 text-xs text-amber-800">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <p className="leading-relaxed">
-              This is an educational physiological monitoring prototype. The displayed stress and relaxation indicators are estimates and are not intended for medical diagnosis.
+              The displayed stress and relaxation indicators are biomedical telemetry estimates and are not intended for medical diagnosis.
             </p>
           </div>
         </div>

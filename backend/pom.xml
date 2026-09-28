@@ -15,7 +15,7 @@
     <artifactId>stresssense-backend</artifactId>
     <version>1.0.0</version>
     <name>StressSense Backend</name>
-    <description>IoT-Based Stress / Relaxation Monitoring Backend with ECG and Pulse Signals</description>
+    <description>IoT-Based Stress / Relaxation Monitoring Backend with ECG Signals</description>
 
     <properties>
         <java.version>17</java.version>

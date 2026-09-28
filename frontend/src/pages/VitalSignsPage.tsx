@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Heart,
   Activity,
-  HeartPulse,
   Brain,
   Leaf,
   CheckCircle2,
@@ -11,14 +10,12 @@ import {
 } from 'lucide-react';
 import { useMonitoring } from '../context/MonitoringContext';
 import { ECGChart } from '../components/charts/ECGChart';
-import { PulseChart } from '../components/charts/PulseChart';
 
 export const VitalSignsPage: React.FC = () => {
   const { currentReading, selectedDeviceId, wsStatus } = useMonitoring();
 
   const isConnected = wsStatus === 'CONNECTED';
   const bpm = currentReading ? Math.round(currentReading.bpm) : 78;
-  const pulseRate = currentReading ? Math.round(currentReading.bpm + 4) : 82;
   const hrv = currentReading ? Math.round(currentReading.hrv) : 45;
   const rr = currentReading ? Math.round(currentReading.rrInterval) : 770;
   const stress = currentReading ? Math.round(currentReading.stressIndex) : 42;
@@ -80,27 +77,27 @@ export const VitalSignsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Pulse Rate (PPG) */}
+        {/* ECG Rhythm / QRS Interval */}
         <div className="bg-white rounded-2xl p-5 border border-[#E2E8F0] shadow-card flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Pulse Rate (PPG)</span>
-              <HeartPulse className="w-4 h-4 text-[#25C7E8]" />
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">ECG Rhythm (Lead II)</span>
+              <Activity className="w-4 h-4 text-[#20E0A0]" />
             </div>
             <div className="flex items-baseline space-x-2">
-              <span className="text-4xl font-extrabold text-[#0B1F33] font-mono">{pulseRate}</span>
-              <span className="text-xs font-semibold text-slate-400">BPM</span>
+              <span className="text-3xl font-extrabold text-[#0B1F33] font-mono">Sinus</span>
+              <span className="text-xs font-semibold text-slate-400">Rhythm</span>
             </div>
             <div className="mt-2 inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              <span>Normal</span>
+              <span>Optimal Synchrony</span>
             </div>
           </div>
 
           <div className="mt-4 pt-3 border-t border-slate-100">
-            <svg className="w-full h-8 stroke-[#25C7E8] fill-none" viewBox="0 0 200 40">
+            <svg className="w-full h-8 stroke-[#20E0A0] fill-none" viewBox="0 0 200 40">
               <path
-                d="M0,30 Q20,5 30,10 T60,30 Q80,5 90,10 T120,30 Q140,5 150,10 T180,30 L200,30"
+                d="M0,20 L30,20 L38,15 L45,20 L52,20 L58,7 L64,33 L70,2 L76,26 L82,20 L100,20 L110,15 L120,20 L138,20 L144,7 L150,33 L156,2 L162,26 L168,20 L200,20"
                 strokeWidth="1.8"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -234,33 +231,31 @@ export const VitalSignsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Row: Live Waveforms Split Panel */}
+      {/* Bottom Row: Live ECG Oscilloscope Panel */}
       <div className="bg-white rounded-2xl p-5 border border-[#E2E8F0] shadow-card space-y-4">
-        <span className="font-bold text-sm text-[#0B1F33] block">Live Waveforms</span>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {/* Left: ECG Lead I */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <ECGChart
-              height={200}
-              title="ECG (Lead I)"
-              lead="Lead I"
-              sweepSpeed="25 mm/s"
-              amplitude="10 mm/mV"
-              showGrid={true}
-              showScales={false}
-              showLiveBadge={true}
-            />
+            <span className="font-bold text-sm text-[#0B1F33] block">Live ECG Oscilloscope</span>
+            <p className="text-xs text-slate-400">Continuous Lead II biosignal telemetry &bull; 250 SPS &bull; 25 mm/s standard sweep</p>
           </div>
+          <div className="flex items-center space-x-2 text-xs font-mono">
+            <span className="px-2 py-1 rounded bg-slate-100 text-slate-600 font-semibold">Lead II</span>
+            <span className="px-2 py-1 rounded bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">25 mm/s</span>
+            <span className="px-2 py-1 rounded bg-blue-50 text-blue-700 font-semibold border border-blue-200">10 mm/mV</span>
+          </div>
+        </div>
 
-          {/* Right: PPG / Pulse */}
-          <div>
-            <PulseChart
-              height={200}
-              title="PPG / Pulse"
-              showLiveBadge={true}
-            />
-          </div>
+        <div>
+          <ECGChart
+            height={220}
+            title="ECG (Lead II - AD8232)"
+            lead="Lead II"
+            sweepSpeed="25 mm/s"
+            amplitude="10 mm/mV"
+            showGrid={true}
+            showScales={true}
+            showLiveBadge={true}
+          />
         </div>
       </div>
     </div>

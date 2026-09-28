@@ -28,8 +28,6 @@ public class SensorDataRequest {
 
     private List<Double> ecgSamples = new ArrayList<>();
 
-    private List<Double> pulseSamples = new ArrayList<>();
-
     public SensorDataRequest() {
     }
 
@@ -111,13 +109,5 @@ public class SensorDataRequest {
 
     public void setEcgSamples(List<Double> ecgSamples) {
         this.ecgSamples = ecgSamples != null ? ecgSamples : new ArrayList<>();
-    }
-
-    public List<Double> getPulseSamples() {
-        return pulseSamples;
-    }
-
-    public void setPulseSamples(List<Double> pulseSamples) {
-        this.pulseSamples = pulseSamples != null ? pulseSamples : new ArrayList<>();
     }
 }

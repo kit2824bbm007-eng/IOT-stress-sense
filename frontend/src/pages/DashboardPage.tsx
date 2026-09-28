@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import {
   Heart,
   Activity,
-  HeartPulse,
   Brain,
   Leaf,
   CheckCircle2,
@@ -14,7 +13,6 @@ import {
 } from 'lucide-react';
 import { useMonitoring } from '../context/MonitoringContext';
 import { ECGChart } from '../components/charts/ECGChart';
-import { PulseChart } from '../components/charts/PulseChart';
 
 export const DashboardPage: React.FC = () => {
   const { currentReading, wsStatus, selectedDeviceId, isSessionActive } = useMonitoring();
@@ -23,7 +21,6 @@ export const DashboardPage: React.FC = () => {
   const bpm = currentReading ? Math.round(currentReading.bpm) : 78;
   const hrv = currentReading ? Math.round(currentReading.hrv) : 45;
   const rr = currentReading ? Math.round(currentReading.rrInterval) : 770;
-  const pulseRate = currentReading ? Math.round(currentReading.bpm + 4) : 82;
   const stress = currentReading ? Math.round(currentReading.stressIndex) : 42;
   const relax = currentReading ? Math.round(currentReading.relaxationIndex) : 58;
   const signalQuality = currentReading?.signalQuality && currentReading.signalQuality > 85 ? 'Good' : 'Optimal';
@@ -162,7 +159,7 @@ export const DashboardPage: React.FC = () => {
         <div className="bg-white rounded-xl p-3.5 border border-[#E2E8F0] shadow-subtle hover:border-slate-300 transition">
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-[10px] font-bold uppercase tracking-wider">RR Interval</span>
-            <HeartPulse className="w-3.5 h-3.5 text-[#20E0A0]" />
+            <Activity className="w-3.5 h-3.5 text-[#20E0A0]" />
           </div>
           <div className="flex items-baseline space-x-1">
             <span className="text-2xl font-extrabold text-[#0B1F33] font-mono">{rr}</span>
@@ -174,19 +171,18 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Pulse Rate */}
+        {/* ECG Signal Quality */}
         <div className="bg-white rounded-xl p-3.5 border border-[#E2E8F0] shadow-subtle hover:border-slate-300 transition">
           <div className="flex items-center justify-between text-slate-500 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Pulse Rate</span>
-            <Activity className="w-3.5 h-3.5 text-blue-500" />
+            <span className="text-[10px] font-bold uppercase tracking-wider">Signal Quality</span>
+            <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" />
           </div>
           <div className="flex items-baseline space-x-1">
-            <span className="text-2xl font-extrabold text-[#0B1F33] font-mono">{pulseRate}</span>
-            <span className="text-[10px] text-slate-400 font-semibold">BPM</span>
+            <span className="text-2xl font-extrabold text-[#0B1F33] font-mono">{signalQuality}</span>
           </div>
           <div className="mt-1 text-[10px] font-semibold text-emerald-600 flex items-center space-x-1">
             <span>●</span>
-            <span>Normal</span>
+            <span>Lead II Clean</span>
           </div>
         </div>
 
@@ -221,21 +217,21 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Section (2 cards: Pulse / PPG Preview + Recent Sessions) */}
+      {/* Bottom Section (2 cards: ECG Rhythm Preview + Recent Sessions) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Pulse / PPG Preview */}
+        {/* ECG Rhythm Preview */}
         <div className="bg-white rounded-2xl p-5 border border-[#E2E8F0] shadow-card">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-2">
-              <span className="font-bold text-sm text-[#0B1F33]">Pulse / PPG Preview</span>
+              <span className="font-bold text-sm text-[#0B1F33]">ECG Lead II Rhythm</span>
             </div>
             <div className="flex items-center space-x-3 text-xs font-mono">
-              <span className="font-bold text-[#0B1F33]">{pulseRate} BPM</span>
-              <span className="text-emerald-600 font-semibold">&bull; Quality: Good</span>
+              <span className="font-bold text-[#0B1F33]">{bpm} BPM</span>
+              <span className="text-emerald-600 font-semibold">&bull; Quality: {signalQuality}</span>
             </div>
           </div>
 
-          <PulseChart height={170} title="PPG / PULSE SIGNAL" showLiveBadge={true} />
+          <ECGChart height={170} title="ECG LEAD II SIGNAL" lead="Lead II" showLiveBadge={true} />
         </div>
 
         {/* Recent Sessions */}
@@ -280,7 +276,7 @@ export const DashboardPage: React.FC = () => {
           </div>
 
           <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-between text-xs text-slate-500">
-            <span>Continuous Lead I ECG + Optical PPG Sensor Stream</span>
+            <span>Continuous Lead II ECG Sensor Stream (AD8232)</span>
             <Link to="/ecg-monitor" className="text-blue-600 font-semibold hover:underline">
               Launch Full ECG Monitor &rarr;
             </Link>

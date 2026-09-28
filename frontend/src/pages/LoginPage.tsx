@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Activity,
-  HeartPulse,
   Sliders,
   Clock,
   ArrowRight,
@@ -104,8 +103,8 @@ export const LoginPage: React.FC = () => {
             </div>
 
             <div className="p-3 rounded-xl bg-[#0B1F33] border border-[#152E4A] text-center">
-              <HeartPulse className="w-4 h-4 text-[#25C7E8] mx-auto mb-1.5" />
-              <span className="text-[11px] font-semibold text-slate-200 block">Pulse Analysis</span>
+              <Heart className="w-4 h-4 text-[#25C7E8] mx-auto mb-1.5" />
+              <span className="text-[11px] font-semibold text-slate-200 block">HRV &amp; RMSSD</span>
             </div>
 
             <div className="p-3 rounded-xl bg-[#0B1F33] border border-[#152E4A] text-center">

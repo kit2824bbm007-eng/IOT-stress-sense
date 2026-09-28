@@ -1,6 +1,6 @@
 # StressSense: IoT-Based Stress & Relaxation Monitoring
 
-> **Real-Time Stress & Relaxation Monitoring Using ECG and Pulse Signals**  
+> **Real-Time Stress & Relaxation Monitoring Using ECG Signals**  
 > *A full-stack, hardware-independent biomedical telemetry platform for real-time physiological stress and relaxation monitoring.*
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Render-brightgreen?style=for-the-badge)](https://iot-stress-sense-frontend.onrender.com/)
@@ -17,7 +17,7 @@
 
 ## 1. Project Overview
 
-**StressSense** is a full-stack, hardware-independent biomedical telemetry platform designed to monitor and evaluate physiological stress and relaxation states in real-time. By synchronously acquiring and analyzing **Electrocardiogram (ECG)** Lead II signals and **Photoplethysmogram (PPG)** optical volumetric pulse waveforms, the system derives autonomic nervous system indicators such as **Heart Rate (BPM)** and **Heart Rate Variability (HRV / RMSSD)**.
+**StressSense** is a full-stack, hardware-independent biomedical telemetry platform designed to monitor and evaluate physiological stress and relaxation states in real-time. By acquiring and analyzing **Electrocardiogram (ECG)** Lead II signals, the system derives autonomic nervous system indicators such as **Heart Rate (BPM)** and **Heart Rate Variability (HRV / RMSSD)**.
 
 ### Hardware Independence Principle
 The exact microcontroller (e.g., **Arduino**, **ESP32**, or **Raspberry Pi Pico W**) has not been restricted or hardcoded in the software architecture. The backend accepts serialized physiological readings from any network-capable IoT node via a standard, universal REST API endpoint (`POST /api/sensor/data`). 
@@ -29,7 +29,7 @@ In Phase 1, a realistic, mathematically modelled **Physiological Sensor Simulato
 ## 2. Key Features
 
 - **Hardware-Agnostic Ingestion Bus**: Standard JSON payload format across simulators, Arduino, ESP32, or custom hardware nodes.
-- **Continuous Biosignal Oscilloscopes**: High-performance canvas-rendered Lead II ECG and optical PPG charts with medical grid lines and sweep indicators at 60 FPS.
+- **Continuous Biosignal Oscilloscope**: High-performance canvas-rendered Lead II ECG charts with medical grid lines and sweep indicators at 60 FPS.
 - **Modular Autonomic Analysis**: Algorithmic estimation of **Estimated Stress Index (0–100%)** and **Estimated Relaxation Index (0–100%)** using a multi-factor model (HRV RMSSD, Heart Rate divergence, and R-R rhythm consistency).
 - **Radial Autonomic Gauges**: Visual dynamic arc gauges that transition between Optimal (Emerald), Moderate (Amber), and Elevated (Red) stress states.
 - **Biometric Session Recording**: Live session management with start, pause, stop controls, and real-time timers.
@@ -47,14 +47,13 @@ In Phase 1, a realistic, mathematically modelled **Physiological Sensor Simulato
 +-------------------------------------------------------------+
 |              DATA ACQUISITION LAYER (Hardware)              |
 |                                                             |
-|   [AD8232 ECG Sensor]            [MAX30102 Pulse Sensor]    |
-|   (Lead II Electrodes)          (IR / Red Photodiode)      |
-|             \                             /                 |
-|              +-------------+-------------+                  |
-|                            |                                |
-|                 [Generic IoT Controller]                    |
-|             (Arduino / ESP32 / Simulator)                   |
-+----------------------------+--------------------------------+
+|                    [AD8232 ECG Sensor]                      |
+|                    (Lead II Electrodes)                     |
+|                             |                               |
+|                             v                               |
+|                  [Generic IoT Controller]                   |
+|              (Arduino / ESP32 / Simulator)                  |
++-----------------------------+-------------------------------+
                              |  Wi-Fi / LAN (JSON over HTTP)
                              v
 +-------------------------------------------------------------+
@@ -78,7 +77,7 @@ In Phase 1, a realistic, mathematically modelled **Physiological Sensor Simulato
 +-------------------------------------------------------------+
 |               REACT 18 FRONTEND (Port 5173)                 |
 |                                                             |
-|   - Live ECG & PPG Oscilloscope Canvases                    |
+|   - Live ECG Lead II Oscilloscope Canvas                    |
 |   - Radial Stress & Relaxation Gauges                       |
 |   - Guided Respiration Pacer (4-4-6 RSA Mode)               |
 |   - Session History & PDF-Ready Diagnostic Reports          |
@@ -141,7 +140,7 @@ stresssense/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── charts/                  # ECGChart and PulseChart canvas components
+│   │   │   ├── charts/                  # ECGChart canvas component
 │   │   │   ├── gauges/                  # Radial StressGauge and RelaxationGauge
 │   │   │   ├── layout/                  # AppLayout, Sidebar, and Topbar
 │   │   │   └── monitoring/              # MetricCard, SessionControls, WellnessStatus
@@ -225,7 +224,6 @@ The web dashboard opens at:
 
 The built-in simulator synthesizes authentic physiological waveforms:
 - **ECG Model**: Sum of Gaussian envelopes generating realistic **P wave**, **QRS complex**, and **T wave** morphology with baseline wander.
-- **PPG Model**: Optical absorption wave modeling the **systolic upstroke**, **dicrotic notch**, and **diastolic runoff**.
 - **Autonomic Modulation**: Modulates Heart Rate (72–85 BPM) with a 0.2 Hz sinusoidal respiration cycle to simulate real Respiratory Sinus Arrhythmia (RSA).
 
 ### Properties (`application.properties`)
@@ -287,8 +285,7 @@ simulation.device-type=SIMULATOR
   "wellnessState": "MODERATE STRESS",
   "wellnessDescription": "Estimated stress is currently moderate based on the available physiological signal features.",
   "signalQuality": 98.5,
-  "ecgSamples": [503.5, 507.7, 504.0, 507.3, 506.5, ...],
-  "pulseSamples": [320.4, 328.1, 345.0, 390.2, 435.6, ...]
+  "ecgSamples": [503.5, 507.7, 504.0, 507.3, 506.5, ...]
 }
 ```
 
@@ -300,8 +297,7 @@ When physical hardware is selected (e.g. Arduino UNO R4, ESP32, STM32), **no bac
 
 ### Recommended Hardware Components
 1. **ECG Sensor**: AD8232 Single-Lead Heart Rate Monitor with 3-electrode cable (RA, LA, RL).
-2. **Pulse Sensor**: MAX30102 Pulse Oximeter & Heart Rate Sensor Module (I2C interface).
-3. **Microcontroller**: Any IoT board with Wi-Fi (e.g., ESP32 NodeMCU, Arduino R4 WiFi).
+2. **Microcontroller**: Any IoT board with Wi-Fi (e.g., ESP32 NodeMCU, Arduino R4 WiFi).
 
 ### IoT Firmware Transmission Logic
 The microcontroller samples the sensors at 250 Hz, buffers 100–250 samples, and performs a standard HTTP POST request every 500ms to the backend:
@@ -318,8 +314,7 @@ Content-Type: application/json
   "bpm": 74.0,
   "rrInterval": 810.0,
   "hrv": 48.5,
-  "ecgSamples": [512, 518, 524, 610, 750, 480, 510, ...],
-  "pulseSamples": [320, 335, 360, 410, 440, 390, 350, ...]
+  "ecgSamples": [512, 518, 524, 610, 750, 480, 510, ...]
 }
 ```
 
@@ -362,14 +357,13 @@ The device will immediately register in the Devices page, and all live oscillosc
        "bpm": 72.0,
        "rrInterval": 833.0,
        "hrv": 54.0,
-       "ecgSamples": [512, 520, 540, 710, 470, 512],
-       "pulseSamples": [320, 340, 380, 430, 380, 330]
+       "ecgSamples": [512, 520, 540, 710, 470, 512]
      }'
    ```
 6. **Open Web Application**:
    Navigate to `http://localhost:5173/` and verify:
    - Dashboard loads with live metric cards and moving ECG preview.
-   - Live Monitoring (`/live`) updates ECG and PPG waveforms continuously.
+   - Live Monitoring (`/live`) updates the ECG waveform continuously.
    - Clicking **Start Session** begins active recording.
    - Clicking **Stop & Save Report** finalizes the session and displays trend analytics and key observations.
    - Guided Breathing mode executes the 4-4-6 respiration cycle with before/after metric tracking.

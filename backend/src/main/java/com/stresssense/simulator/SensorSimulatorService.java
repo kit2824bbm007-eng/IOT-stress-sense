@@ -120,7 +120,6 @@ public class SensorSimulatorService {
             double dt = 1.0 / sampleRate;
 
             List<Double> ecgSamples = new ArrayList<>(sampleCount);
-            List<Double> pulseSamples = new ArrayList<>(sampleCount);
 
             double cyclePeriod = 60.0 / currentBpm;
 
@@ -148,18 +147,6 @@ public class SensorSimulatorService {
                 // Scale to typical 10-bit ADC integer values centered around 512 (e.g. 350 - 850)
                 double ecgValue = Math.round((512.0 + (ecgNorm + baselineWander + noise) * 220.0) * 10.0) / 10.0;
                 ecgSamples.add(ecgValue);
-
-                // --- Physiological Pulse / PPG Photoplethysmogram Model ---
-                // Systolic wave: center 0.35, width 0.08, amp 0.85
-                double sysWave = 0.85 * Math.exp(-Math.pow((phase - 0.35) / 0.08, 2));
-                // Dicrotic notch and diastolic wave: center 0.54, width 0.06, amp 0.32
-                double dicWave = 0.32 * Math.exp(-Math.pow((phase - 0.54) / 0.06, 2));
-                double ppgNorm = sysWave + dicWave;
-                double ppgNoise = (random.nextDouble() - 0.5) * 0.015;
-
-                // Scale to typical optical PPG ADC range (e.g. 300 - 650)
-                double ppgValue = Math.round((320.0 + (ppgNorm + ppgNoise) * 260.0) * 10.0) / 10.0;
-                pulseSamples.add(ppgValue);
             }
 
             // Advance simulation clock for next cycle
@@ -175,7 +162,6 @@ public class SensorSimulatorService {
             request.setHrv(currentHrv);
             request.setSignalQuality(98.5);
             request.setEcgSamples(ecgSamples);
-            request.setPulseSamples(pulseSamples);
 
             // Pass through standard processing pipeline
             sensorDataService.processAndSaveSensorData(request);

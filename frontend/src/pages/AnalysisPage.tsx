@@ -91,7 +91,7 @@ export const AnalysisPage: React.FC = () => {
           </div>
 
           <p className="text-xs text-slate-500 leading-relaxed">
-            Index synthesized from continuous RR-interval variances and pulse amplitude standard deviation.
+            Index synthesized from continuous ECG RR-interval variances (RMSSD) and heart rate dynamics.
           </p>
         </div>
 

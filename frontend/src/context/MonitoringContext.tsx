@@ -6,7 +6,6 @@ import sensorWebSocket, { WebSocketStatus } from '../services/websocket';
 interface MonitoringContextType {
   currentReading: SensorReadingData | null;
   ecgBuffer: number[];
-  pulseBuffer: number[];
   activeSession: SessionData | null;
   selectedDeviceId: string;
   setSelectedDeviceId: (id: string) => void;
@@ -33,7 +32,6 @@ const DEFAULT_READING: SensorReadingData = {
   wellnessDescription: 'Physiological signals reflect optimal autonomic balance and high parasympathetic tone.',
   signalQuality: 98,
   ecgSamples: [],
-  pulseSamples: [],
 };
 
 const MonitoringContext = createContext<MonitoringContextType | undefined>(undefined);
@@ -41,7 +39,6 @@ const MonitoringContext = createContext<MonitoringContextType | undefined>(undef
 export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentReading, setCurrentReading] = useState<SensorReadingData | null>(DEFAULT_READING);
   const [ecgBuffer, setEcgBuffer] = useState<number[]>([]);
-  const [pulseBuffer, setPulseBuffer] = useState<number[]>([]);
   const [activeSession, setActiveSession] = useState<SessionData | null>(null);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>('SIMULATOR_001');
   const [devices, setDevices] = useState<DeviceData[]>([]);
@@ -85,14 +82,6 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       if (reading.ecgSamples && reading.ecgSamples.length > 0) {
         setEcgBuffer((prev) => {
           const combined = [...prev, ...reading.ecgSamples];
-          return combined.length > BUFFER_SIZE ? combined.slice(combined.length - BUFFER_SIZE) : combined;
-        });
-      }
-
-      // Append incoming Pulse samples to rolling buffer
-      if (reading.pulseSamples && reading.pulseSamples.length > 0) {
-        setPulseBuffer((prev) => {
-          const combined = [...prev, ...reading.pulseSamples];
           return combined.length > BUFFER_SIZE ? combined.slice(combined.length - BUFFER_SIZE) : combined;
         });
       }
@@ -165,7 +154,6 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       value={{
         currentReading,
         ecgBuffer,
-        pulseBuffer,
         activeSession,
         selectedDeviceId,
         setSelectedDeviceId,
