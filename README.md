@@ -1,7 +1,7 @@
 # StressSense: IoT-Based Stress & Relaxation Monitoring
 
 > **Real-Time Stress & Relaxation Monitoring Using ECG and Pulse Signals**  
-> *A full-stack, hardware-independent biomedical telemetry prototype for academic demonstration and research.*
+> *A full-stack, hardware-independent biomedical telemetry platform for real-time physiological stress and relaxation monitoring.*
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Render-brightgreen?style=for-the-badge)](https://iot-stress-sense-frontend.onrender.com/)
 
@@ -376,6 +376,6 @@ The device will immediately register in the Devices page, and all live oscillosc
 
 ---
 
-## 14. Academic & Educational Disclaimer
+## 14. Medical Disclaimer
 
-> **DISCLAIMER**: This software system is developed as an educational wellness-monitoring prototype for academic and experimental demonstration purposes. Stress and relaxation indices are estimated from physiological signal features (Heart Rate, Heart Rate Variability, and RR interval patterns) and are **not intended for medical diagnosis, treatment, or clinical patient monitoring**.
+> **DISCLAIMER**: Stress and relaxation indices are estimated from physiological signal features (Heart Rate, Heart Rate Variability, and RR interval patterns) and are **not intended for medical diagnosis, treatment, or clinical patient monitoring**.
