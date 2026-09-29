@@ -21,12 +21,30 @@ export const SessionsPage: React.FC = () => {
 
   const fetchSessions = async () => {
     setLoading(true);
+    let combined: SessionData[] = [];
+
+    // 1. Load any locally completed hardware recording sessions
+    try {
+      const historyRaw = localStorage.getItem('stresssense_history_sessions');
+      if (historyRaw) {
+        combined = JSON.parse(historyRaw);
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // 2. Load backend sessions if database is connected
     try {
       const data = await apiService.getAllSessions();
-      setSessions(data);
+      data.forEach((d) => {
+        if (!combined.some((c) => c.id === d.id)) {
+          combined.push(d);
+        }
+      });
     } catch (err) {
-      console.error('Failed to load sessions:', err);
+      console.warn('Backend sessions unreachable; displaying local hardware history:', err);
     } finally {
+      setSessions(combined);
       setLoading(false);
     }
   };
