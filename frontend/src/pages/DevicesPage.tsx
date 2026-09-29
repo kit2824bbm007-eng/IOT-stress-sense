@@ -125,7 +125,7 @@ export const DevicesPage: React.FC = () => {
             <div className="flex justify-between py-1.5 border-b border-slate-100">
               <span className="text-slate-500 font-medium">Heart Rate:</span>
               <span className="font-mono font-bold text-[#0B1F33]">
-                {currentReading ? Math.round(currentReading.bpm) : 74} BPM
+                {currentReading && currentReading.bpm > 0 ? Math.round(currentReading.bpm) : '--'} BPM
               </span>
             </div>
 

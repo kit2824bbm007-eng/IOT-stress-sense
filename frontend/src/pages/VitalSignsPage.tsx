@@ -12,15 +12,16 @@ import { useMonitoring } from '../context/MonitoringContext';
 import { ECGChart } from '../components/charts/ECGChart';
 
 export const VitalSignsPage: React.FC = () => {
-  const { currentReading, selectedDeviceId, wsStatus } = useMonitoring();
+  const { currentReading, selectedDeviceId, wsStatus, isUsbConnected } = useMonitoring();
 
-  const isConnected = wsStatus === 'CONNECTED';
-  const bpm = currentReading ? Math.round(currentReading.bpm) : 78;
-  const hrv = currentReading ? Math.round(currentReading.hrv) : 45;
-  const rr = currentReading ? Math.round(currentReading.rrInterval) : 770;
-  const stress = currentReading ? Math.round(currentReading.stressIndex) : 42;
-  const relax = currentReading ? Math.round(currentReading.relaxationIndex) : 58;
-  const signalQuality = currentReading?.signalQuality && currentReading.signalQuality > 85 ? 'Good' : 'Optimal';
+  const isConnected = wsStatus === 'CONNECTED' || isUsbConnected;
+  const isHardware = isUsbConnected || (selectedDeviceId && selectedDeviceId.startsWith('ARDUINO'));
+  const bpm = currentReading && currentReading.bpm > 0 ? Math.round(currentReading.bpm) : '--';
+  const hrv = currentReading && currentReading.hrv && currentReading.bpm > 0 ? Math.round(currentReading.hrv) : '--';
+  const rr = currentReading && currentReading.rrInterval && currentReading.bpm > 0 ? Math.round(currentReading.rrInterval) : '--';
+  const stress = currentReading && currentReading.stressIndex !== undefined && currentReading.bpm > 0 ? Math.round(currentReading.stressIndex) : '--';
+  const relax = currentReading && currentReading.relaxationIndex !== undefined && currentReading.bpm > 0 ? Math.round(currentReading.relaxationIndex) : '--';
+  const signalQuality = currentReading && currentReading.bpm > 0 ? (currentReading.signalQuality > 85 ? 'Good' : 'Optimal') : 'Standby';
 
   return (
     <div className="space-y-6">

@@ -110,8 +110,8 @@ public class SensorDataService {
                     fallback.setDeviceId(deviceId);
                     fallback.setDeviceType("SIMULATOR");
                     fallback.setTimestamp(LocalDateTime.now());
-                    fallback.setBpm(72.0);
-                    fallback.setRrInterval(833.0);
+                    fallback.setBpm(73.5);
+                    fallback.setRrInterval(816.0);
                     fallback.setHrv(48.0);
                     fallback.setStressIndex(38.0);
                     fallback.setRelaxationIndex(62.0);

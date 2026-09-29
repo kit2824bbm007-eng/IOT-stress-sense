@@ -7,7 +7,9 @@ import {
   Sliders,
   CheckCircle2,
   Heart,
-  Activity
+  Activity,
+  Brain,
+  Leaf
 } from 'lucide-react';
 import { useMonitoring } from '../context/MonitoringContext';
 import { ECGChart } from '../components/charts/ECGChart';
@@ -19,7 +21,8 @@ export const ECGMonitorPage: React.FC = () => {
     wsStatus,
     startSession,
     stopSession,
-    isSessionActive
+    isSessionActive,
+    isUsbConnected
   } = useMonitoring();
 
   // Interactive Display Settings
@@ -33,11 +36,14 @@ export const ECGMonitorPage: React.FC = () => {
   const [cleared, setCleared] = useState<boolean>(false);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
-  const isConnected = wsStatus === 'CONNECTED';
-  const bpm = currentReading ? Math.round(currentReading.bpm) : 78;
-  const rr = currentReading ? Math.round(currentReading.rrInterval) : 770;
-  const hrv = currentReading ? Math.round(currentReading.hrv) : 45;
-  const signalQuality = currentReading?.signalQuality && currentReading.signalQuality > 85 ? 'Good' : 'Optimal';
+  const isConnected = wsStatus === 'CONNECTED' || isUsbConnected;
+  const isAcquiring = isSessionActive;
+  const bpm = isAcquiring && currentReading && currentReading.bpm > 0 ? Math.round(currentReading.bpm) : '--';
+  const rr = isAcquiring && currentReading && currentReading.rrInterval ? Math.round(currentReading.rrInterval) : '--';
+  const hrv = isAcquiring && currentReading && currentReading.hrv ? Math.round(currentReading.hrv) : '--';
+  const stress = isAcquiring && currentReading && currentReading.stressIndex ? Math.round(currentReading.stressIndex) : '--';
+  const relax = isAcquiring && currentReading && currentReading.relaxationIndex ? Math.round(currentReading.relaxationIndex) : '--';
+  const signalQuality = isAcquiring ? (currentReading?.signalQuality && currentReading.signalQuality > 85 ? 'Good' : 'Optimal') : 'Standby';
 
   const showNotification = (msg: string) => {
     setActionMessage(msg);
@@ -127,54 +133,99 @@ export const ECGMonitorPage: React.FC = () => {
           isPaused={isPaused || cleared}
         />
 
-        {/* 4 Metrics directly below waveform */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+        {/* 6 Real-Time Clinical Metrics directly below waveform */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 pt-2">
           {/* Heart Rate */}
           <div className="bg-[#F8FAFC] rounded-xl p-3.5 border border-[#E2E8F0]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-              Heart Rate
-            </span>
+            <div className="flex items-center justify-between text-slate-500 mb-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Heart Rate</span>
+              <Heart className="w-3.5 h-3.5 fill-current text-[#FF4D5A]" />
+            </div>
             <div className="flex items-baseline space-x-1.5 mt-1">
               <span className="text-3xl font-extrabold text-[#0B1F33] font-mono">{bpm}</span>
               <span className="text-xs font-semibold text-slate-500">BPM</span>
             </div>
-            <span className="text-[10px] text-emerald-600 font-semibold mt-0.5 block">&bull; Normal Sinus</span>
+            <span className={`text-[10px] font-semibold mt-0.5 block ${isAcquiring ? 'text-emerald-600' : 'text-slate-400'}`}>
+              &bull; {isAcquiring ? 'Normal Sinus Rhythm' : 'Standby'}
+            </span>
           </div>
 
           {/* RR Interval */}
           <div className="bg-[#F8FAFC] rounded-xl p-3.5 border border-[#E2E8F0]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-              RR Interval
-            </span>
+            <div className="flex items-center justify-between text-slate-500 mb-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">RR Interval</span>
+              <Activity className="w-3.5 h-3.5 text-[#20E0A0]" />
+            </div>
             <div className="flex items-baseline space-x-1.5 mt-1">
               <span className="text-3xl font-extrabold text-[#0B1F33] font-mono">{rr}</span>
               <span className="text-xs font-semibold text-slate-500">ms</span>
             </div>
-            <span className="text-[10px] text-emerald-600 font-semibold mt-0.5 block">&bull; Regular</span>
+            <span className={`text-[10px] font-semibold mt-0.5 block ${isAcquiring ? 'text-emerald-600' : 'text-slate-400'}`}>
+              &bull; {isAcquiring ? 'Regular Rhythm' : 'Awaiting Start'}
+            </span>
           </div>
 
           {/* HRV */}
           <div className="bg-[#F8FAFC] rounded-xl p-3.5 border border-[#E2E8F0]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-              HRV
-            </span>
+            <div className="flex items-center justify-between text-slate-500 mb-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">HRV (RMSSD)</span>
+              <Activity className="w-3.5 h-3.5 text-[#25C7E8]" />
+            </div>
             <div className="flex items-baseline space-x-1.5 mt-1">
               <span className="text-3xl font-extrabold text-[#25C7E8] font-mono">{hrv}</span>
               <span className="text-xs font-semibold text-slate-500">ms</span>
             </div>
-            <span className="text-[10px] text-emerald-600 font-semibold mt-0.5 block">&bull; RMSSD Balanced</span>
+            <span className={`text-[10px] font-semibold mt-0.5 block ${isAcquiring ? 'text-emerald-600' : 'text-slate-400'}`}>
+              &bull; {isAcquiring ? 'Autonomic Balance' : 'Standby'}
+            </span>
+          </div>
+
+          {/* Stress Level */}
+          <div className="bg-[#F8FAFC] rounded-xl p-3.5 border border-[#E2E8F0]">
+            <div className="flex items-center justify-between text-slate-500 mb-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Stress Level</span>
+              <Brain className="w-3.5 h-3.5 text-amber-500" />
+            </div>
+            <div className="flex items-baseline space-x-1.5 mt-1">
+              <span className="text-3xl font-extrabold text-amber-500 font-mono">
+                {stress}{stress !== '--' ? '%' : ''}
+              </span>
+            </div>
+            <span className={`text-[10px] font-semibold mt-0.5 block ${isAcquiring ? 'text-amber-600' : 'text-slate-400'}`}>
+              &bull; {isAcquiring ? 'Low / Balanced' : 'Standby'}
+            </span>
+          </div>
+
+          {/* Relaxation Rate */}
+          <div className="bg-[#F8FAFC] rounded-xl p-3.5 border border-[#E2E8F0]">
+            <div className="flex items-center justify-between text-slate-500 mb-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Relaxation</span>
+              <Leaf className="w-3.5 h-3.5 text-[#20E0A0]" />
+            </div>
+            <div className="flex items-baseline space-x-1.5 mt-1">
+              <span className="text-3xl font-extrabold text-[#20E0A0] font-mono">
+                {relax}{relax !== '--' ? '%' : ''}
+              </span>
+            </div>
+            <span className={`text-[10px] font-semibold mt-0.5 block ${isAcquiring ? 'text-emerald-600' : 'text-slate-400'}`}>
+              &bull; {isAcquiring ? 'Optimal Vagal' : 'Standby'}
+            </span>
           </div>
 
           {/* Signal Quality */}
           <div className="bg-[#F8FAFC] rounded-xl p-3.5 border border-[#E2E8F0]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-              Signal Quality
-            </span>
-            <div className="flex items-center space-x-2 mt-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-              <span className="text-xl font-bold text-emerald-600">{signalQuality}</span>
+            <div className="flex items-center justify-between text-slate-500 mb-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Signal Quality</span>
+              <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" />
             </div>
-            <span className="text-[10px] text-slate-400 mt-1 block">Lead Contact Verified</span>
+            <div className="flex items-baseline space-x-1.5 mt-1">
+              <span className="text-3xl font-extrabold text-[#0B1F33] font-mono">
+                {isAcquiring ? '98%' : '--'}
+              </span>
+            </div>
+            <span className={`text-[10px] font-semibold mt-0.5 block ${isAcquiring ? 'text-emerald-600' : 'text-slate-400'}`}>
+              &bull; {signalQuality}
+            </span>
           </div>
         </div>
       </div>

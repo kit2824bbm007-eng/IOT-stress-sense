@@ -15,15 +15,38 @@ import { useMonitoring } from '../context/MonitoringContext';
 import { ECGChart } from '../components/charts/ECGChart';
 
 export const DashboardPage: React.FC = () => {
-  const { currentReading, wsStatus, selectedDeviceId, isSessionActive } = useMonitoring();
+  const {
+    currentReading,
+    wsStatus,
+    selectedDeviceId,
+    isSessionActive,
+    isSimulatorRunning,
+    isUsbConnected,
+    connectUsbArduino,
+    disconnectUsbArduino,
+  } = useMonitoring();
 
-  const isConnected = wsStatus === 'CONNECTED';
-  const bpm = currentReading ? Math.round(currentReading.bpm) : 78;
-  const hrv = currentReading ? Math.round(currentReading.hrv) : 45;
-  const rr = currentReading ? Math.round(currentReading.rrInterval) : 770;
-  const stress = currentReading ? Math.round(currentReading.stressIndex) : 42;
-  const relax = currentReading ? Math.round(currentReading.relaxationIndex) : 58;
-  const signalQuality = currentReading?.signalQuality && currentReading.signalQuality > 85 ? 'Good' : 'Optimal';
+  const handleUsbToggle = async () => {
+    if (isUsbConnected) {
+      await disconnectUsbArduino();
+    } else {
+      try {
+        await connectUsbArduino();
+      } catch (err: any) {
+        alert(err.message || 'Could not connect to USB serial device.');
+      }
+    }
+  };
+
+  const isConnected = wsStatus === 'CONNECTED' || isUsbConnected;
+  const isHardware = isUsbConnected || (selectedDeviceId && selectedDeviceId.startsWith('ARDUINO'));
+  const isAcquiring = isSessionActive || (isSimulatorRunning && selectedDeviceId === 'SIMULATOR_001');
+  const bpm = isAcquiring && currentReading && currentReading.bpm > 0 ? Math.round(currentReading.bpm) : '--';
+  const hrv = isAcquiring && currentReading && currentReading.hrv ? Math.round(currentReading.hrv) : '--';
+  const rr = isAcquiring && currentReading && currentReading.rrInterval ? Math.round(currentReading.rrInterval) : '--';
+  const stress = isAcquiring && currentReading && currentReading.stressIndex !== undefined ? Math.round(currentReading.stressIndex) : '--';
+  const relax = isAcquiring && currentReading && currentReading.relaxationIndex !== undefined ? Math.round(currentReading.relaxationIndex) : '--';
+  const signalQuality = isAcquiring ? (currentReading?.signalQuality && currentReading.signalQuality > 85 ? 'Good' : 'Optimal') : 'Standby';
 
   const recentSessions = [
     { id: '#0001', date: '25 Sep 2026', time: '10:12 AM', duration: '5m 32s', status: 'Moderate', level: '42%', color: 'amber' },
@@ -36,24 +59,40 @@ export const DashboardPage: React.FC = () => {
       {/* Top Welcome & Status Banner */}
       <div className="bg-white rounded-2xl p-5 border border-[#E2E8F0] shadow-card flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-[#0B1F33] tracking-tight">Good Morning</h1>
-          <p className="text-xs text-slate-500 mt-0.5">Your wellness overview</p>
+          <h1 className="text-xl font-bold text-[#0B1F33] tracking-tight">Biomedical HUD</h1>
+          <p className="text-xs text-slate-500 mt-0.5">Real-time physiological stress & ECG telemetry</p>
         </div>
 
-        {/* 3 Status Badges */}
+        {/* Status Badges & Quick Hardware Connect */}
         <div className="flex flex-wrap items-center gap-3">
+          {/* Hardware Connect Quick Toggle Button */}
+          <button
+            onClick={handleUsbToggle}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition border shadow-subtle ${
+              isUsbConnected
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
+                : 'bg-blue-600 hover:bg-blue-700 text-white border-transparent'
+            }`}
+          >
+            <Radio className={`w-3.5 h-3.5 ${isUsbConnected ? 'text-emerald-600 animate-pulse' : 'text-white'}`} />
+            <span>{isUsbConnected ? 'Arduino USB Live' : 'Connect Arduino (USB)'}</span>
+          </button>
+
           {/* Device Connected */}
           <div className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-[#F4F7FA] border border-[#E2E8F0] text-xs">
-            <span className="w-2 h-2 rounded-full bg-[#20E0A0] shadow-[0_0_6px_#20E0A0]"></span>
-            <span className="text-slate-500 font-medium">Device Connected</span>
-            <span className="font-semibold text-[#0B1F33] font-mono">{selectedDeviceId || 'SIMULATOR_001'}</span>
+            <span className={`w-2 h-2 rounded-full ${isHardware ? 'bg-[#20E0A0] shadow-[0_0_6px_#20E0A0]' : 'bg-[#FFB547]'}`}></span>
+            <span className="text-slate-500 font-medium">Source:</span>
+            <span className="font-semibold text-[#0B1F33] font-mono">{selectedDeviceId || (isUsbConnected ? 'ARDUINO_001' : 'SIMULATOR_001')}</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${isHardware ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+              {isHardware ? 'HARDWARE' : 'SIMULATOR'}
+            </span>
           </div>
 
           {/* Live Data */}
           <div className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-[#F4F7FA] border border-[#E2E8F0] text-xs">
             <span className="w-2 h-2 rounded-full bg-[#25C7E8] shadow-[0_0_6px_#25C7E8]"></span>
-            <span className="text-slate-500 font-medium">Live Data</span>
-            <span className="font-semibold text-blue-600">{isConnected ? 'Receiving' : 'Connecting'}</span>
+            <span className="text-slate-500 font-medium">Stream:</span>
+            <span className="font-semibold text-blue-600">{isConnected ? 'Receiving' : 'Standby'}</span>
           </div>
 
           {/* Session Status */}
